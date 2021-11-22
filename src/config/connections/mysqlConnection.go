@@ -2,8 +2,16 @@ package connections
 
 import (
 	"database/sql"
-	"log"
+	"net/http"
 	"time"
+
+	"github.com/CristhianRamirez3010/task-manager-go/src/config/errorManagerDto"
+	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
+	_ "github.com/go-sql-driver/mysql"
+)
+
+const (
+	errDefault = "Error with the connection"
 )
 
 type MySQLConnection struct {
@@ -22,15 +30,13 @@ func BuildMySQLConnection(connectionsString string, maxOpenDbConn int, masIdleDb
 	}
 }
 
-func (m MySQLConnection) ConnectDBMysql() (*sql.DB, error) {
+func (m MySQLConnection) ConnectDBMysql() (*sql.DB, *errorManagerDto.ErrorManagerDto) {
 	if m.connectionsString == "" {
-		log.Fatal("not connection string")
-		return nil, nil
+		return nil, utils.Logger("Not connection string in .env", errDefault, http.StatusInternalServerError, "")
 	}
 	db, err := sql.Open("mysql", m.connectionsString)
 	if err != nil {
-		log.Fatal("error with the connection", err.Error())
-		return nil, err
+		return nil, utils.Logger("Connection with provider is not working", errDefault, http.StatusInternalServerError, err.Error())
 	}
 	db.SetMaxOpenConns(m.maxOpenDbConn)
 	db.SetConnMaxIdleTime(m.masIdleDbConn)

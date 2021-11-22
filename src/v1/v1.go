@@ -10,5 +10,5 @@ type IApi interface {
 }
 
 func BuildIApi() IApi {
-	return api.Api{}
+	return api.BuildApi()
 }
