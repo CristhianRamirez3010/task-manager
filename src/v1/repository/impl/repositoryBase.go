@@ -29,7 +29,7 @@ func (r RepositoryBase) selectAll(where string) string {
 		where = fmt.Sprintf(" where %s", where)
 	}
 	selectStr := "select "
-	for field := range r.fields {
+	for _, field := range r.fields {
 		selectStr = fmt.Sprintf("%s %s,", selectStr, field)
 	}
 	return fmt.Sprintf("select %s from %s %s;",
