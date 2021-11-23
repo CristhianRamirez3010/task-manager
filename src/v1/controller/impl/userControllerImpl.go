@@ -3,13 +3,16 @@ package impl
 import (
 	"net/http"
 
-	"github.com/CristhianRamirez3010/task-manager-go/src/config/errorManagerDto"
+	"github.com/CristhianRamirez3010/task-manager-go/src/config/responseDto"
+	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/handler"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/useLoginModel"
 	"github.com/gin-gonic/gin"
 )
 
 type UserControllerImpl struct {
 	userHandler handler.IUserHandler
+	controllerBase
 }
 
 func BuildUserControllerImpl() UserControllerImpl {
@@ -19,10 +22,19 @@ func BuildUserControllerImpl() UserControllerImpl {
 }
 
 func (u UserControllerImpl) GetDocuments(c *gin.Context) {
-	response := u.userHandler.GetDocuments()
-	if response.Error == (errorManagerDto.ErrorManagerDto{}) {
-		c.JSON(http.StatusOK, response)
+	u.ResponseManager(u.userHandler.GetDocuments(), c)
+
+}
+
+func (u UserControllerImpl) ValidateLogin(c *gin.Context) {
+	var userLogin *useLoginModel.UseLoginModel
+	err := c.BindJSON(userLogin)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responseDto.ResponseDto{
+			Error: *utils.Logger("Error to convert Struct", "Error with controller", http.StatusInternalServerError, ""),
+		})
 	} else {
-		c.JSON(response.Error.Status, response)
+		u.ResponseManager(u.userHandler.ValidateLogin(userLogin), c)
 	}
+
 }

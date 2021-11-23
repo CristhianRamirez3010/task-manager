@@ -1,4 +1,4 @@
-package userDocumentTypeModel
+package useLoginModel
 
 import (
 	"database/sql"
@@ -10,37 +10,40 @@ import (
 )
 
 const (
-	TABLE_NAME    = "use_documenttype"
+	TABLE_NAME    = "use_login"
 	ID            = "id"
-	NAME          = "name"
-	DESCRIPTION   = "description"
+	EMAIL         = "email"
+	USER          = "user"
+	PASSOWRD      = "password"
 	USER_REGISTER = "user_register"
 	DATE_REGISTER = "date_register"
 	USER_UPDATE   = "user_update"
 	DATE_UPDATE   = "date_update"
 
-	errDefault = "Error with the model"
+	errDefault = "Error with de model"
 )
 
-type UseDocumentTypeModel struct {
+type UseLoginModel struct {
 	Id           int64     `db:"id"`
-	Name         string    `db:"name"`
-	Description  string    `db:"description"`
+	Email        string    `db:"email"`
+	User         string    `db:"user"`
+	Password     string    `db:"password"`
 	UserRegister string    `db:"user_register"`
 	DateRegister time.Time `db:"date_register"`
 	UserUpdate   string    `db:"user_update"`
 	DateUpdate   time.Time `db:"date_update"`
 }
 
-func (d *UseDocumentTypeModel) ScanModel(rows *sql.Rows) *errorManagerDto.ErrorManagerDto {
+func (l *UseLoginModel) ScanModel(rows *sql.Rows) *errorManagerDto.ErrorManagerDto {
 	err := rows.Scan(
-		&d.Id,
-		&d.Name,
-		&d.Description,
-		&d.UserRegister,
-		&d.DateRegister,
-		&d.UserUpdate,
-		&d.UserUpdate,
+		&l.Id,
+		&l.Email,
+		&l.User,
+		&l.Password,
+		&l.UserRegister,
+		&l.DateRegister,
+		&l.UserUpdate,
+		&l.UserUpdate,
 	)
 	if err != nil {
 		return utils.Logger("The tranform in the model failed", errDefault, http.StatusOK, err.Error())

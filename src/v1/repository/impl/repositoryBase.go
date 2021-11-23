@@ -9,13 +9,17 @@ import (
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/errorManagerDto"
 )
 
-type RepositoryBase struct {
-	fields    []string
-	table     string
+const (
+	errDefault = "Error with the repository"
+)
+
+type repositoryBase struct {
+	Fields    []string
+	Table     string
 	Constants constants.Constants
 }
 
-func (r RepositoryBase) loadConnection() (*sql.DB, *errorManagerDto.ErrorManagerDto) {
+func (r repositoryBase) loadConnection() (*sql.DB, *errorManagerDto.ErrorManagerDto) {
 	return connections.BuildMySQLConnection(
 		r.Constants.GetMysqlConnectionString(),
 		r.Constants.GetMaxOpenDbConn(),
@@ -24,16 +28,17 @@ func (r RepositoryBase) loadConnection() (*sql.DB, *errorManagerDto.ErrorManager
 	).ConnectDBMysql()
 }
 
-func (r RepositoryBase) selectAll(where string) string {
+func (r repositoryBase) selectAll(where string) string {
 	if where != "" {
 		where = fmt.Sprintf(" where %s", where)
 	}
-	selectStr := "select "
-	for _, field := range r.fields {
+	selectStr := ""
+	for _, field := range r.Fields {
 		selectStr = fmt.Sprintf("%s %s,", selectStr, field)
 	}
+	selectStr = selectStr[:len(selectStr)-1]
 	return fmt.Sprintf("select %s from %s %s;",
 		selectStr,
-		r.table,
+		r.Table,
 		where)
 }

@@ -1,47 +1,38 @@
 package impl
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/constants"
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/errorManagerDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/userDocumentTypeModel"
-)
-
-const (
-	errDefault = "Error with the repository"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/useDocumentTypeModel"
 )
 
 type UseDocumentRepoImpl struct {
-	RepositoryBase
-}
-
-func (u UseDocumentRepoImpl) selectAll(where string) string {
-	if where != "" {
-		where = fmt.Sprintf(" where %s", where)
-	}
-	return fmt.Sprintf("select %s,%s,%s,%s,%s,%s,%s from %s %s;",
-		userDocumentTypeModel.ID,
-		userDocumentTypeModel.NAME,
-		userDocumentTypeModel.DESCRIPTION,
-		userDocumentTypeModel.USER_REGISTER,
-		userDocumentTypeModel.DATE_REGISTER,
-		userDocumentTypeModel.USER_UPDATE,
-		userDocumentTypeModel.DATE_UPDATE,
-		userDocumentTypeModel.TABLE_NAME,
-		where)
+	repositoryBase
 }
 
 func BuildUseDocumentImpl() UseDocumentRepoImpl {
 	return UseDocumentRepoImpl{
-		RepositoryBase: RepositoryBase{Constants: constants.BuildConstants()},
+		repositoryBase: repositoryBase{
+			Constants: constants.BuildConstants(),
+			Table:     useDocumentTypeModel.TABLE_NAME,
+			Fields: []string{
+				useDocumentTypeModel.ID,
+				useDocumentTypeModel.NAME,
+				useDocumentTypeModel.DESCRIPTION,
+				useDocumentTypeModel.USER_REGISTER,
+				useDocumentTypeModel.DATE_REGISTER,
+				useDocumentTypeModel.USER_UPDATE,
+				useDocumentTypeModel.DATE_UPDATE,
+			},
+		},
 	}
 }
 
-func (u UseDocumentRepoImpl) GetAll() ([]*userDocumentTypeModel.UseDocumentTypeModel, *errorManagerDto.ErrorManagerDto) {
-	var documents []*userDocumentTypeModel.UseDocumentTypeModel
+func (u UseDocumentRepoImpl) GetAll() ([]*useDocumentTypeModel.UseDocumentTypeModel, *errorManagerDto.ErrorManagerDto) {
+	var documents []*useDocumentTypeModel.UseDocumentTypeModel
 	db, errDto := u.loadConnection()
 	if errDto != nil {
 		return nil, errDto
@@ -54,7 +45,7 @@ func (u UseDocumentRepoImpl) GetAll() ([]*userDocumentTypeModel.UseDocumentTypeM
 	}
 
 	for rows.Next() {
-		document := userDocumentTypeModel.UseDocumentTypeModel{}
+		document := useDocumentTypeModel.UseDocumentTypeModel{}
 		document.ScanModel(rows)
 		documents = append(documents, &document)
 	}
