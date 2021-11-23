@@ -7,6 +7,8 @@ import (
 
 type IUserController interface {
 	GetDocuments(c *gin.Context)
+	ValidateLogin(c *gin.Context)
+	CreateNewUser(c *gin.Context)
 }
 
 func BuildIUserController() IUserController {

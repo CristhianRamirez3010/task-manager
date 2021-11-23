@@ -7,7 +7,8 @@ import (
 )
 
 type IUseLoginRepo interface {
-	FindByEmailAndUser(email string, user string) ([]*useLoginModel.UseLoginModel, *errorManagerDto.ErrorManagerDto)
+	FindByEmailAndUser(email *string, user *string) ([]*useLoginModel.UseLoginModel, *errorManagerDto.ErrorManagerDto)
+	New(useLogin *useLoginModel.UseLoginModel) *errorManagerDto.ErrorManagerDto
 }
 
 func BuildIUseLoginRepo() IUseLoginRepo {

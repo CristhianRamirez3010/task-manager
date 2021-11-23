@@ -13,8 +13,8 @@ type UseDocumentRepoImpl struct {
 	repositoryBase
 }
 
-func BuildUseDocumentImpl() UseDocumentRepoImpl {
-	return UseDocumentRepoImpl{
+func BuildUseDocumentImpl() *UseDocumentRepoImpl {
+	return &UseDocumentRepoImpl{
 		repositoryBase: repositoryBase{
 			Constants: constants.BuildConstants(),
 			Table:     useDocumentTypeModel.TABLE_NAME,
@@ -31,7 +31,7 @@ func BuildUseDocumentImpl() UseDocumentRepoImpl {
 	}
 }
 
-func (u UseDocumentRepoImpl) GetAll() ([]*useDocumentTypeModel.UseDocumentTypeModel, *errorManagerDto.ErrorManagerDto) {
+func (u *UseDocumentRepoImpl) GetAll() ([]*useDocumentTypeModel.UseDocumentTypeModel, *errorManagerDto.ErrorManagerDto) {
 	var documents []*useDocumentTypeModel.UseDocumentTypeModel
 	db, errDto := u.loadConnection()
 	if errDto != nil {

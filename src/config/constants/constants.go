@@ -15,8 +15,8 @@ type Constants struct {
 	maxDbLifetime         string
 }
 
-func BuildConstants() Constants {
-	return Constants{
+func BuildConstants() *Constants {
+	return &Constants{
 		port:                  os.Getenv("PORT"),
 		mySQLConnectionString: os.Getenv("MYSQLCONNECTIONSTRING"),
 		maxOpenDbConn:         os.Getenv("MAXOPENDBCONN"),
@@ -25,10 +25,10 @@ func BuildConstants() Constants {
 	}
 }
 
-func (c Constants) GetPort() string {
+func (c *Constants) GetPort() string {
 	return c.port
 }
-func (c Constants) GetMaxOpenDbConn() int {
+func (c *Constants) GetMaxOpenDbConn() int {
 	maxOpenDbConn, err := strconv.Atoi(c.maxOpenDbConn)
 	if err != nil {
 		log.Print("not maxOpenDbConn from env (default: 10)")
@@ -36,7 +36,7 @@ func (c Constants) GetMaxOpenDbConn() int {
 	}
 	return maxOpenDbConn
 }
-func (c Constants) GetMasIdleDbConn() time.Duration {
+func (c *Constants) GetMasIdleDbConn() time.Duration {
 	masIdleDbConn, err := time.ParseDuration(c.masIdleDbConn)
 	if err != nil {
 		log.Print("not masIdleDbConn from env (default: 5ms)")
@@ -44,7 +44,7 @@ func (c Constants) GetMasIdleDbConn() time.Duration {
 	}
 	return masIdleDbConn
 }
-func (c Constants) GetMaxDbLifetime() time.Duration {
+func (c *Constants) GetMaxDbLifetime() time.Duration {
 	maxDbLifetime, err := time.ParseDuration(c.maxDbLifetime)
 	if err != nil {
 		log.Print("not maxDbLifetime from env (default: 5m)")
@@ -53,6 +53,6 @@ func (c Constants) GetMaxDbLifetime() time.Duration {
 	return maxDbLifetime
 
 }
-func (c Constants) GetMysqlConnectionString() string {
+func (c *Constants) GetMysqlConnectionString() string {
 	return c.mySQLConnectionString
 }

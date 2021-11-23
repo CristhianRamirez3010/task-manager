@@ -16,7 +16,7 @@ const (
 type repositoryBase struct {
 	Fields    []string
 	Table     string
-	Constants constants.Constants
+	Constants *constants.Constants
 }
 
 func (r repositoryBase) loadConnection() (*sql.DB, *errorManagerDto.ErrorManagerDto) {
@@ -28,17 +28,33 @@ func (r repositoryBase) loadConnection() (*sql.DB, *errorManagerDto.ErrorManager
 	).ConnectDBMysql()
 }
 
-func (r repositoryBase) selectAll(where string) string {
+func (r *repositoryBase) selectAll(where string) string {
 	if where != "" {
 		where = fmt.Sprintf(" where %s", where)
 	}
-	selectStr := ""
-	for _, field := range r.Fields {
-		selectStr = fmt.Sprintf("%s %s,", selectStr, field)
-	}
-	selectStr = selectStr[:len(selectStr)-1]
+
 	return fmt.Sprintf("select %s from %s %s;",
-		selectStr,
+		r.buildFields(),
 		r.Table,
 		where)
+}
+
+func (r *repositoryBase) insertAll() string {
+	values := ""
+
+	for range r.Fields {
+		values = fmt.Sprintf("%s?,", values)
+	}
+	values = values[:len(values)-1]
+
+	return fmt.Sprintf("insert into %s(%s) values(%s)", r.Table, r.buildFields(), values)
+}
+
+func (r *repositoryBase) buildFields() string {
+	fields := ""
+
+	for _, field := range r.Fields {
+		fields = fmt.Sprintf("%s %s,", fields, field)
+	}
+	return fields[:len(fields)-1]
 }
