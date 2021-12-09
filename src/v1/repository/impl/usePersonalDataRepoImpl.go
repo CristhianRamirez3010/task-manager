@@ -7,10 +7,13 @@ import (
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/constants"
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/errorManagerDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/useHistoryTokensModel"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/useLoginModel"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/usePersonalDataModel"
 )
 
 type UsePersonalDataRepoImpl struct {
+	loginRepo *UseLoginRepoImpl
 	repositoryBase
 }
 
@@ -23,9 +26,10 @@ func BuildUsePersonalDataRepoImpl() *UsePersonalDataRepoImpl {
 				usePersonalDataModel.ID,
 				usePersonalDataModel.NAME,
 				usePersonalDataModel.SURNAME,
-				usePersonalDataModel.IDENTIFICATION,
+				usePersonalDataModel.DOCUMENT,
 				usePersonalDataModel.PHONE,
 				usePersonalDataModel.COUNTRY,
+				usePersonalDataModel.DOCUMENTTYPE,
 				usePersonalDataModel.LOGIN_ID,
 				usePersonalDataModel.USER_REGISTER,
 				usePersonalDataModel.DATE_REGISTER,
@@ -36,15 +40,23 @@ func BuildUsePersonalDataRepoImpl() *UsePersonalDataRepoImpl {
 	}
 }
 
+func (p *UsePersonalDataRepoImpl) LoadUseLoginRepoImpl(login *UseLoginRepoImpl) {
+	p.loginRepo = login
+}
+
 func (p *UsePersonalDataRepoImpl) GetDataByLoginId(loginId *int64) (*usePersonalDataModel.UsePersonalDataModel, *errorManagerDto.ErrorManagerDto) {
 
 	db, errDto := p.loadConnection()
 	if errDto != nil {
 		return nil, errDto
 	}
-	db.Close()
+	defer db.Close()
 
-	rows, err := db.Query(p.selectAll(fmt.Sprintf("%s=?", usePersonalDataModel.LOGIN_ID)), *loginId)
+	query := p.buildQuery([]*string{
+		p.addSelect(),
+		p.addWhere(fmt.Sprintf("%s=?", usePersonalDataModel.LOGIN_ID)),
+	})
+	rows, err := db.Query(*query, *loginId)
 	if err != nil {
 		return nil, utils.Logger("Error with the query", errDefault, http.StatusInternalServerError, err.Error())
 	}
@@ -55,6 +67,40 @@ func (p *UsePersonalDataRepoImpl) GetDataByLoginId(loginId *int64) (*usePersonal
 	return &usePersonalData, nil
 }
 
+func (p *UsePersonalDataRepoImpl) GetDataByToken(token string) (*usePersonalDataModel.UsePersonalDataModel, *errorManagerDto.ErrorManagerDto) {
+	db, errDto := p.loadConnection()
+	if errDto != nil {
+		return nil, errDto
+	}
+	defer db.Close()
+
+	personRef := "person"
+	loginRef := "login"
+	tokenRef := "histTok"
+
+	query := p.buildQuery([]*string{
+		p.addSelectWithRef(personRef),
+		p.addInnerJoin(useLoginModel.TABLE_NAME, loginRef, fmt.Sprintf(" %s.%s=%s.%s ", loginRef, useLoginModel.ID, personRef, usePersonalDataModel.LOGIN_ID)),
+		p.addInnerJoin(useHistoryTokensModel.TABLE_NAME, tokenRef, fmt.Sprintf(" %s.%s=%s.%s ", tokenRef, useHistoryTokensModel.LOGIN_ID, loginRef, useLoginModel.ID)),
+		p.addWhere(*utils.BuildStrFromArray([]string{
+			fmt.Sprintf(" %s.%s=? ", tokenRef, useHistoryTokensModel.TOKEN),
+		})),
+	})
+	rows, err := db.Query(*query, token)
+	if err != nil {
+		return nil, utils.Logger("Error with the query (GetDataByToken,PersonalDataRepo)", errDefault, http.StatusInternalServerError, err.Error())
+	}
+	var personalData usePersonalDataModel.UsePersonalDataModel
+	if rows.Next() {
+		errDto = personalData.ScanModel(rows)
+		if errDto != nil {
+			return nil, errDto
+		}
+	}
+
+	return &personalData, nil
+}
+
 func (p *UsePersonalDataRepoImpl) New(personaldata *usePersonalDataModel.UsePersonalDataModel) *errorManagerDto.ErrorManagerDto {
 	db, errDto := p.loadConnection()
 	if errDto != nil {
@@ -62,20 +108,23 @@ func (p *UsePersonalDataRepoImpl) New(personaldata *usePersonalDataModel.UsePers
 	}
 	defer db.Close()
 
-	_, err := db.Exec(p.insertAll(),
+	query := p.buildQuery([]*string{
+		p.addInsert(),
+	})
+	_, err := db.Exec(*query,
 		personaldata.Id,
 		personaldata.Name,
 		personaldata.Surname,
-		personaldata.Identification,
+		personaldata.Document,
 		personaldata.Phone,
 		personaldata.Country,
+		personaldata.DocumentType,
 		personaldata.LoginId,
 		personaldata.UserRegister,
 		personaldata.DateRegister,
 		personaldata.UserUpdate,
 		personaldata.DateUpdate,
 	)
-	fmt.Println(p.insertAll())
 	if err != nil {
 		return utils.Logger("Error with the insert in PersonalDataRepo (New())", errDefault, http.StatusInternalServerError, err.Error())
 	}

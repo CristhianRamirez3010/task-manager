@@ -7,6 +7,7 @@ import (
 )
 
 type IUsePersonalDataRepo interface {
+	GetDataByToken(token string) (*usePersonalDataModel.UsePersonalDataModel, *errorManagerDto.ErrorManagerDto)
 	GetDataByLoginId(loginId *int64) (*usePersonalDataModel.UsePersonalDataModel, *errorManagerDto.ErrorManagerDto)
 	New(personaldata *usePersonalDataModel.UsePersonalDataModel) *errorManagerDto.ErrorManagerDto
 }

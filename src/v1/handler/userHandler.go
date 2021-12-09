@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/CristhianRamirez3010/task-manager-go/src/config/contextDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/responseDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/dto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/handler/impl"
@@ -13,6 +14,6 @@ type IUserHandler interface {
 	CreateNewUser(userData *dto.UserdataDto) *responseDto.ResponseDto
 }
 
-func BuildIUserHandler() IUserHandler {
-	return impl.BuildUserHandler()
+func BuildIUserHandler(con *contextDto.ContextDto) IUserHandler {
+	return impl.BuildUserHandler(con)
 }

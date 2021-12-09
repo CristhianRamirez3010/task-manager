@@ -28,33 +28,55 @@ func (r repositoryBase) loadConnection() (*sql.DB, *errorManagerDto.ErrorManager
 	).ConnectDBMysql()
 }
 
-func (r *repositoryBase) selectAll(where string) string {
-	if where != "" {
-		where = fmt.Sprintf(" where %s", where)
-	}
-
-	return fmt.Sprintf("select %s from %s %s;",
-		r.buildFields(),
-		r.Table,
-		where)
+func (r *repositoryBase) addSelect() *string {
+	return r.addSelectWithRef("")
 }
 
-func (r *repositoryBase) insertAll() string {
+func (r *repositoryBase) addInnerJoin(table string, tableRefence string, conditions string) *string {
+	join := fmt.Sprintf("inner join %s %s on %s", table, tableRefence, conditions)
+	return &join
+}
+
+func (r *repositoryBase) addWhere(where string) *string {
+	varWhere := fmt.Sprintf(" where %s", where)
+	return &varWhere
+}
+
+func (r *repositoryBase) addSelectWithRef(tableRefence string) *string {
+	varSelect := fmt.Sprintf(" select %s from %s %s ",
+		*r.buildFields(tableRefence),
+		r.Table,
+		tableRefence)
+	return &varSelect
+}
+
+func (r *repositoryBase) addInsert() *string {
 	values := ""
 
 	for range r.Fields {
 		values = fmt.Sprintf("%s?,", values)
 	}
 	values = values[:len(values)-1]
-
-	return fmt.Sprintf("insert into %s(%s) values(%s)", r.Table, r.buildFields(), values)
+	varSelect := fmt.Sprintf("insert into %s(%s) values(%s)", r.Table, *r.buildFields(""), values)
+	return &varSelect
 }
 
-func (r *repositoryBase) buildFields() string {
+func (r *repositoryBase) buildFields(tableRefence string) *string {
 	fields := ""
-
-	for _, field := range r.Fields {
-		fields = fmt.Sprintf("%s %s,", fields, field)
+	if tableRefence != "" {
+		tableRefence = fmt.Sprintf("%s.", tableRefence)
 	}
-	return fields[:len(fields)-1]
+	for _, field := range r.Fields {
+		fields = fmt.Sprintf("%s %s%s,", fields, tableRefence, field)
+	}
+	varFields := fields[:len(fields)-1]
+	return &varFields
+}
+
+func (r *repositoryBase) buildQuery(segments []*string) *string {
+	query := ""
+	for _, segment := range segments {
+		query = fmt.Sprintf("%s %s", query, *segment)
+	}
+	return &query
 }

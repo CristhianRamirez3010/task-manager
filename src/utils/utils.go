@@ -20,3 +20,13 @@ func Logger(errIn string, errOut string, status int, errExeption string) *errorM
 		Status:  status,
 	}
 }
+
+func BuildStrFromArray(strList []string) *string {
+	strReturn := ""
+
+	for _, str := range strList {
+		strReturn = fmt.Sprintf("%s%s", strReturn, str)
+	}
+
+	return &strReturn
+}

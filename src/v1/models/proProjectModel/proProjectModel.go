@@ -1,4 +1,4 @@
-package useDocumentTypeModel
+package proProjectModel
 
 import (
 	"database/sql"
@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	TABLE_NAME    = "use_documenttype"
+	TABLE_NAME    = "pro_projects"
 	ID            = "id"
 	NAME          = "name"
 	DESCRIPTION   = "description"
@@ -22,7 +22,7 @@ const (
 	errDefault = "Error with the model"
 )
 
-type UseDocumentTypeModel struct {
+type ProProjectModel struct {
 	Id           int64     `db:"id"`
 	Name         string    `db:"name"`
 	Description  string    `db:"description"`
@@ -30,22 +30,21 @@ type UseDocumentTypeModel struct {
 	DateRegister time.Time `db:"date_register"`
 	UserUpdate   string    `db:"user_update"`
 	DateUpdate   time.Time `db:"date_update"`
-
-	PersonalDataModelList interface{}
 }
 
-func (d *UseDocumentTypeModel) ScanModel(rows *sql.Rows) *errorManagerDto.ErrorManagerDto {
+func (p *ProProjectModel) ScanModel(rows *sql.Rows) *errorManagerDto.ErrorManagerDto {
 	err := rows.Scan(
-		&d.Id,
-		&d.Name,
-		&d.Description,
-		&d.UserRegister,
-		&d.DateRegister,
-		&d.UserUpdate,
-		&d.UserUpdate,
+		&p.Id,
+		&p.Name,
+		&p.Description,
+		&p.UserRegister,
+		&p.DateRegister,
+		&p.UserUpdate,
+		&p.DateUpdate,
 	)
+
 	if err != nil {
-		return utils.Logger("The tranform in the model failed", errDefault, http.StatusOK, err.Error())
+		return utils.Logger("Error with the scan (ProProjectModel, Scan)", errDefault, http.StatusInternalServerError, err.Error())
 	}
 	return nil
 }

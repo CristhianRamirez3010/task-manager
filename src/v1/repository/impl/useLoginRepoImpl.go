@@ -41,7 +41,11 @@ func (u *UseLoginRepoImpl) FindByEmailAndUser(email *string, user *string) ([]*u
 	}
 	defer db.Close()
 
-	rows, err := db.Query(u.selectAll(fmt.Sprintf("%s=? or %s=?", useLoginModel.EMAIL, useLoginModel.USER)), email, user)
+	query := u.buildQuery([]*string{
+		u.addSelect(),
+		u.addWhere(fmt.Sprintf("%s=? or %s=?", useLoginModel.EMAIL, useLoginModel.USER)),
+	})
+	rows, err := db.Query(*query, email, user)
 	if err != nil {
 		return nil, utils.Logger("Error with the query in UseLoginRepo", errDefault, http.StatusInternalServerError, err.Error())
 	}
@@ -61,7 +65,11 @@ func (u *UseLoginRepoImpl) New(useLogin *useLoginModel.UseLoginModel) *errorMana
 		return errDto
 	}
 	defer db.Close()
-	_, err := db.Exec(u.insertAll(),
+
+	query := u.buildQuery([]*string{
+		u.addInsert(),
+	})
+	_, err := db.Exec(*query,
 		useLogin.Id,
 		useLogin.Email,
 		useLogin.User,

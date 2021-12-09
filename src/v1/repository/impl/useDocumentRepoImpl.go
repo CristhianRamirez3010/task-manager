@@ -39,7 +39,10 @@ func (u *UseDocumentRepoImpl) GetAll() ([]*useDocumentTypeModel.UseDocumentTypeM
 	}
 	defer db.Close()
 
-	rows, err := db.Query(u.selectAll(""))
+	query := u.buildQuery([]*string{
+		u.addSelect(),
+	})
+	rows, err := db.Query(*query)
 	if err != nil {
 		return nil, utils.Logger("Error with the query", errDefault, http.StatusInternalServerError, err.Error())
 	}

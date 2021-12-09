@@ -32,6 +32,8 @@ type UseLoginModel struct {
 	DateRegister time.Time `db:"date_register"`
 	UserUpdate   string    `db:"user_update"`
 	DateUpdate   time.Time `db:"date_update"`
+
+	HistoryTokesModelList interface{}
 }
 
 func (l *UseLoginModel) ScanModel(rows *sql.Rows) *errorManagerDto.ErrorManagerDto {

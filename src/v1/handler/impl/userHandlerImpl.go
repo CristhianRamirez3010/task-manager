@@ -1,30 +1,40 @@
 package impl
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/CristhianRamirez3010/task-manager-go/src/config/contextDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/errorManagerDto"
-	"github.com/CristhianRamirez3010/task-manager-go/src/config/exceptios"
+	"github.com/CristhianRamirez3010/task-manager-go/src/config/exceptions"
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/responseDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/dto"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/useHistoryTokensModel"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/useLoginModel"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/usePersonalDataModel"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/repository"
 )
 
 type UserHandler struct {
+	contextDto *contextDto.ContextDto
+
 	documentTypeRepo repository.IUseDocumentRepo
 	loginRepo        repository.IUseLoginRepo
 	personalDataRepo repository.IUsePersonalDataRepo
+	historyTokeRepo  repository.IUseHistoryTokensRepo
 }
 
-func BuildUserHandler() *UserHandler {
+func BuildUserHandler(con *contextDto.ContextDto) *UserHandler {
 	return &UserHandler{
+		contextDto:       con,
 		documentTypeRepo: repository.BuildIUseDocumentRepo(),
 		loginRepo:        repository.BuildIUseLoginRepo(),
 		personalDataRepo: repository.BuildIUsePersonalDataRepo(),
+		historyTokeRepo:  repository.BuildIUseHistoryTokensRepo(),
 	}
 }
 
@@ -45,7 +55,7 @@ func (u *UserHandler) GetDocuments() *responseDto.ResponseDto {
 func (u *UserHandler) ValidateLogin(userLogin *useLoginModel.UseLoginModel) *responseDto.ResponseDto {
 	if userLogin == nil && (userLogin.Email != "" || userLogin.User != "") && userLogin.Password != "" {
 		return &responseDto.ResponseDto{
-			Error:   *utils.Logger(exceptios.OBJECT_EMPTY, exceptios.OBJECT_EMPTY, http.StatusPreconditionFailed, ""),
+			Error:   *utils.Logger(exceptions.OBJECT_EMPTY, exceptions.OBJECT_EMPTY, http.StatusPreconditionFailed, ""),
 			Message: "The fields are requerid",
 		}
 	}
@@ -64,7 +74,36 @@ func (u *UserHandler) ValidateLogin(userLogin *useLoginModel.UseLoginModel) *res
 		}
 	}
 
+	token, errDto := u.createHashToke(content[0])
+	if errDto != nil {
+		return &responseDto.ResponseDto{
+			Error: *errDto,
+		}
+	}
+
+	errDto = u.saveUserToken(token, content[0])
+	if errDto != nil {
+		return &responseDto.ResponseDto{
+			Error: *errDto,
+		}
+	}
+
+	personalData, errDto := u.personalDataRepo.GetDataByLoginId(&content[0].Id)
+	if errDto != nil {
+		return &responseDto.ResponseDto{
+			Error: *errDto,
+		}
+	}
+
 	return &responseDto.ResponseDto{
+		Content: &dto.UserdataDto{
+			Name:    personalData.Name,
+			Surname: personalData.Surname,
+			Country: personalData.Country,
+			Phone:   personalData.Phone,
+			Token:   token,
+			Email:   content[0].Email,
+		},
 		Message: "User Valid",
 	}
 }
@@ -108,14 +147,15 @@ func (u *UserHandler) CreateNewUser(userData *dto.UserdataDto) *responseDto.Resp
 	}
 
 	personalDataModel := usePersonalDataModel.UsePersonalDataModel{
-		Name:           userData.Name,
-		Surname:        userData.Surname,
-		Identification: userData.Idenfication,
-		Phone:          userData.Phone,
-		Country:        userData.Country,
-		LoginId:        loginResponse[0].Id,
-		UserRegister:   "",
-		DateRegister:   time.Now(),
+		Name:         userData.Name,
+		Surname:      userData.Surname,
+		Document:     userData.Document,
+		Phone:        userData.Phone,
+		Country:      userData.Country,
+		DocumentType: userData.DocumentType,
+		LoginId:      loginResponse[0].Id,
+		UserRegister: "",
+		DateRegister: time.Now(),
 	}
 
 	errDto = u.personalDataRepo.New(&personalDataModel)
@@ -128,4 +168,29 @@ func (u *UserHandler) CreateNewUser(userData *dto.UserdataDto) *responseDto.Resp
 	return &responseDto.ResponseDto{
 		Message: "Register success",
 	}
+}
+
+func (u *UserHandler) createHashToke(loginModel *useLoginModel.UseLoginModel) (string, *errorManagerDto.ErrorManagerDto) {
+	hasher := md5.New()
+	_, err := hasher.Write([]byte(fmt.Sprintf("%d%s%s", time.Now().UnixNano(), loginModel.Email, loginModel.User)))
+	if err != nil {
+		return "", utils.Logger("Error with the hash method", errDefault, http.StatusInternalServerError, err.Error())
+	}
+	return hex.EncodeToString(hasher.Sum(nil)), nil
+}
+
+func (u *UserHandler) saveUserToken(token string, user *useLoginModel.UseLoginModel) *errorManagerDto.ErrorManagerDto {
+	date := time.Now()
+	date.AddDate(0, 0, 1)
+	errDto := u.historyTokeRepo.NewToken(&useHistoryTokensModel.UseHistoryToekensModel{
+		Token:        token,
+		Finish:       date,
+		LoginId:      user.Id,
+		UserRegister: "",
+		DateRegister: time.Now(),
+	})
+	if errDto != nil {
+		return errDto
+	}
+	return nil
 }

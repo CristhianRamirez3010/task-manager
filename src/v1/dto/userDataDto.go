@@ -8,5 +8,7 @@ type UserdataDto struct {
 	Password     string
 	Phone        string
 	Country      string
-	Idenfication string
+	Document     string
+	DocumentType int64
+	Token        string
 }
