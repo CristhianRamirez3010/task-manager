@@ -1,28 +1,24 @@
 package impl
 
 import (
-	"net/http"
-
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/contextDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/responseDto"
-	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/proProjectModel"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/repository"
 )
 
 type ProjectHandlerImpl struct {
-	contextDto *contextDto.ContextDto
-
 	handlerBase
 }
 
 func BuildProjectHandlerImpl(con *contextDto.ContextDto) *ProjectHandlerImpl {
 	return &ProjectHandlerImpl{
-		contextDto: con,
+		handlerBase: handlerBase{contextDto: con},
 	}
 }
 
 func (p *ProjectHandlerImpl) GetProject() *responseDto.ResponseDto {
-	personalDataModel, errDto := p.validateToken(p.contextDto.AccessToken)
+	personalDataModel, errDto := p.validateToken()
 	if errDto != nil {
 		return &responseDto.ResponseDto{
 			Error: *errDto,
@@ -40,11 +36,23 @@ func (p *ProjectHandlerImpl) GetProject() *responseDto.ResponseDto {
 	}
 }
 
-func (p *ProjectHandlerImpl) NewProject() *responseDto.ResponseDto {
-	if p.contextDto.AccessToken == "" {
+func (p *ProjectHandlerImpl) NewProject(projectModel *proProjectModel.ProProjectModel) *responseDto.ResponseDto {
+	_, errDto := p.validateToken()
+	if errDto != nil {
 		return &responseDto.ResponseDto{
-			Error: *utils.Logger(errTokenInvalid, errTokenInvalid, http.StatusPreconditionFailed, ""),
+			Error: *errDto,
 		}
 	}
-	return &responseDto.ResponseDto{}
+	projectRepo := repository.BuildIProProjectRepo()
+
+	errDto = projectRepo.New(projectModel)
+	if errDto != nil {
+		return &responseDto.ResponseDto{
+			Error: *errDto,
+		}
+	}
+
+	return &responseDto.ResponseDto{
+		Content: projectModel,
+	}
 }

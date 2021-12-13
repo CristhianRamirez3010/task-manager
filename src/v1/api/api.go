@@ -29,8 +29,11 @@ func (a *Api) userApi(gin *gin.Engine) {
 }
 
 func (a *Api) projectApi(gin *gin.Engine) {
-	projectController := controller.BuildIProjectController()
+
 	const projectEnpoint = "/v1/projects"
 
-	gin.GET(projectEnpoint, projectController.GetProjects)
+	gin.GET(projectEnpoint, controller.BuildIProjectController().GetProjects)
+	gin.POST(fmt.Sprintf("%s/new", projectEnpoint), controller.BuildIProjectController().NewProject)
 }
+
+//controller.BuildIProjectController().Test

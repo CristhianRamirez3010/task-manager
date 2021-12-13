@@ -55,7 +55,6 @@ func (p *ProProjectRepoImpl) FindProjectByUser(user *usePersonalDataModel.UsePer
 			fmt.Sprintf("%s.%s = ?", personRef, usePersonalDataModel.ID),
 		})),
 	})
-	fmt.Println(*query, user.Id)
 	rows, err := db.Query(*query, user.Id)
 	if err != nil {
 		return nil, utils.Logger("Error with the query (FindProjectByUser,ProjectRepo)", errDefault, http.StatusInternalServerError, err.Error())
@@ -70,4 +69,43 @@ func (p *ProProjectRepoImpl) FindProjectByUser(user *usePersonalDataModel.UsePer
 	}
 
 	return projects, nil
+}
+
+func (p *ProProjectRepoImpl) New(projectModel *proProjectModel.ProProjectModel) *errorManagerDto.ErrorManagerDto {
+	db, errDto := p.loadConnection()
+	if errDto != nil {
+		return errDto
+	}
+	defer db.Close()
+
+	query := p.buildQuery([]*string{
+		p.addInsert(),
+	})
+	_, err := db.Exec(*query,
+		projectModel.Id,
+		projectModel.Name,
+		projectModel.Description,
+		projectModel.UserRegister,
+		projectModel.DateRegister,
+		projectModel.UserUpdate,
+		projectModel.DateUpdate,
+	)
+	if err != nil {
+		return utils.Logger("Problems with the insert (New, ProjectRepo)", errDefault, http.StatusInternalServerError, err.Error())
+	}
+	query = p.buildQuery([]*string{
+		p.addMySqlLastInsertId(),
+	})
+	rows, err := db.Query(*query)
+	if err != nil {
+		return utils.Logger("Problems with the select id (New, ProjectRepo)", errDefault, http.StatusInternalServerError, err.Error())
+	}
+	if rows.Next() {
+		err = rows.Scan(&projectModel.Id)
+		if err != nil {
+			return utils.Logger("problems when we treat to get the id", errDefault, http.StatusInternalServerError, err.Error())
+		}
+	}
+
+	return nil
 }

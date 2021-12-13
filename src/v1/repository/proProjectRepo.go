@@ -9,6 +9,7 @@ import (
 
 type IProProjectRepo interface {
 	FindProjectByUser(user *usePersonalDataModel.UsePersonalDataModel) ([]*proProjectModel.ProProjectModel, *errorManagerDto.ErrorManagerDto)
+	New(projectModel *proProjectModel.ProProjectModel) *errorManagerDto.ErrorManagerDto
 }
 
 func BuildIProProjectRepo() IProProjectRepo {

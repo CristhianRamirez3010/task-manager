@@ -80,3 +80,8 @@ func (r *repositoryBase) buildQuery(segments []*string) *string {
 	}
 	return &query
 }
+
+func (r *repositoryBase) addMySqlLastInsertId() *string {
+	query := "select LAST_INSERT_ID()"
+	return &query
+}
