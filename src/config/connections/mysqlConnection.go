@@ -21,6 +21,11 @@ type MySQLConnection struct {
 	maxDbLifetime     time.Duration
 }
 
+var (
+	openConnection = sql.Open
+	logger         = utils.Logger
+)
+
 func BuildMySQLConnection(connectionsString string, maxOpenDbConn int, masIdleDbConn time.Duration, maxDbLifetime time.Duration) *MySQLConnection {
 	return &MySQLConnection{
 		connectionsString: connectionsString,
@@ -32,11 +37,11 @@ func BuildMySQLConnection(connectionsString string, maxOpenDbConn int, masIdleDb
 
 func (m *MySQLConnection) ConnectDBMysql() (*sql.DB, *errorManagerDto.ErrorManagerDto) {
 	if m.connectionsString == "" {
-		return nil, utils.Logger("Not connection string in .env", errDefault, http.StatusInternalServerError, "")
+		return nil, logger("Not connection string in .env", errDefault, http.StatusInternalServerError, "")
 	}
-	db, err := sql.Open("mysql", m.connectionsString)
+	db, err := openConnection("mysql", m.connectionsString)
 	if err != nil {
-		return nil, utils.Logger("Connection with provider is not working", errDefault, http.StatusInternalServerError, err.Error())
+		return nil, logger("Connection with provider is not working", errDefault, http.StatusInternalServerError, err.Error())
 	}
 	db.SetMaxOpenConns(m.maxOpenDbConn)
 	db.SetConnMaxIdleTime(m.masIdleDbConn)

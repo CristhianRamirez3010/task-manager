@@ -1,7 +1,7 @@
-package controller
+package userController
 
 import (
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controller/impl"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controller/controllerImpl/userControllerImpl"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,5 +12,5 @@ type IUserController interface {
 }
 
 func BuildIUserController() IUserController {
-	return impl.BuildUserControllerImpl()
+	return userControllerImpl.BuildUserControllerImpl()
 }

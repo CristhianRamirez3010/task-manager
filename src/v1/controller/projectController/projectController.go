@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controller/impl"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controller/controllerImpl/projectControllerImpl"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,5 +11,5 @@ type IProjectController interface {
 }
 
 func BuildIProjectController() IProjectController {
-	return impl.BuildProjectControllerImpl()
+	return projectControllerImpl.BuildProjectControllerImpl()
 }

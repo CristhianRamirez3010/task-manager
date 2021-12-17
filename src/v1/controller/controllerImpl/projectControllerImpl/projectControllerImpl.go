@@ -1,37 +1,47 @@
-package impl
+package projectControllerImpl
 
 import (
 	"net/http"
 
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/responseDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controller/controllerImpl"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/handler"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/proProjectModel"
 	"github.com/gin-gonic/gin"
 )
 
 type ProjectControllerImpl struct {
-	controllerBase
+	controllerImpl.ControllerBase
 }
+
+const (
+	errConvertStruct = controllerImpl.ErrConvertStruct
+	errDefault       = controllerImpl.ErrDefault
+)
+
+var (
+	buildIProjectHandler = handler.BuildIProjectHandler
+)
 
 func BuildProjectControllerImpl() *ProjectControllerImpl {
 
-	return &ProjectControllerImpl{}
+	return new(ProjectControllerImpl)
 }
 
 func (p *ProjectControllerImpl) GetProjects(c *gin.Context) {
-	projectHandler := handler.BuildIProjectHandler(p.loadContextDto(c))
-	p.responseManager(projectHandler.GetProject(), c)
+	projectHandler := buildIProjectHandler(p.LoadContextDto(c))
+	p.ResponseManager(projectHandler.GetProject(), c)
 }
 
 func (p *ProjectControllerImpl) NewProject(c *gin.Context) {
-	projectHandler := handler.BuildIProjectHandler(p.loadContextDto(c))
+	projectHandler := buildIProjectHandler(p.LoadContextDto(c))
 	var projectModel proProjectModel.ProProjectModel
 	err := c.BindJSON(&projectHandler)
 	if err != nil {
-		p.responseManager(&responseDto.ResponseDto{
+		p.ResponseManager(&responseDto.ResponseDto{
 			Error: *utils.Logger(errConvertStruct, errDefault, http.StatusInternalServerError, err.Error()),
 		}, c)
 	}
-	p.responseManager(projectHandler.NewProject(&projectModel), c)
+	p.ResponseManager(projectHandler.NewProject(&projectModel), c)
 }

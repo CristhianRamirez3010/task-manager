@@ -3,7 +3,8 @@ package api
 import (
 	"fmt"
 
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controller"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controller/projectController"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controller/userController"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,21 +20,19 @@ func (a *Api) Routing(gin *gin.Engine) {
 }
 
 func (a *Api) userApi(gin *gin.Engine) {
-	userController := controller.BuildIUserController()
+	controller := userController.BuildIUserController()
 	const userEndpoint = "/v1/user"
 
-	gin.GET(fmt.Sprintf("%s/documents", userEndpoint), userController.GetDocuments)
+	gin.GET(fmt.Sprintf("%s/documents", userEndpoint), controller.GetDocuments)
 
-	gin.POST(fmt.Sprintf("%s/login", userEndpoint), userController.ValidateLogin)
-	gin.POST(fmt.Sprintf("%s/create", userEndpoint), userController.CreateNewUser)
+	gin.POST(fmt.Sprintf("%s/login", userEndpoint), controller.ValidateLogin)
+	gin.POST(fmt.Sprintf("%s/create", userEndpoint), controller.CreateNewUser)
 }
 
 func (a *Api) projectApi(gin *gin.Engine) {
 
 	const projectEnpoint = "/v1/projects"
-
-	gin.GET(projectEnpoint, controller.BuildIProjectController().GetProjects)
-	gin.POST(fmt.Sprintf("%s/new", projectEnpoint), controller.BuildIProjectController().NewProject)
+	controller := projectController.BuildIProjectController()
+	gin.GET(projectEnpoint, controller.GetProjects)
+	gin.POST(fmt.Sprintf("%s/new", projectEnpoint), controller.NewProject)
 }
-
-//controller.BuildIProjectController().Test

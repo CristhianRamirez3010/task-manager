@@ -1,4 +1,4 @@
-package impl
+package controllerImpl
 
 import (
 	"net/http"
@@ -10,20 +10,20 @@ import (
 )
 
 const (
-	errDefault       = "Error with controller"
-	errConvertStruct = "Error to convert Struct"
+	ErrDefault       = "Error with controller"
+	ErrConvertStruct = "Error to convert Struct"
 )
 
-type controllerBase struct{}
+type ControllerBase struct{}
 
-func (_ controllerBase) responseManager(response *responseDto.ResponseDto, context *gin.Context) {
+func (_ ControllerBase) ResponseManager(response *responseDto.ResponseDto, context *gin.Context) {
 	if response.Error == (errorManagerDto.ErrorManagerDto{}) {
 		context.JSON(http.StatusOK, response)
 	} else {
 		context.JSON(response.Error.Status, response)
 	}
 }
-func (_ controllerBase) loadContextDto(con *gin.Context) *contextDto.ContextDto {
+func (_ ControllerBase) LoadContextDto(con *gin.Context) *contextDto.ContextDto {
 	contextDto := contextDto.ContextDto{
 		ClientIP:    con.ClientIP(),
 		AccessToken: con.GetHeader("accessId"),
