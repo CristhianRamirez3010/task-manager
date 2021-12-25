@@ -5,8 +5,8 @@ import (
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/responseDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/proProjectModel"
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/service/projectService"
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/service/userService"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/services/projectService"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/services/userService"
 )
 
 type IProjectHandler interface {

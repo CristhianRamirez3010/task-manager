@@ -15,9 +15,9 @@ import (
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/useHistoryTokensModel"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/useLoginModel"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/usePersonalDataModel"
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/repository/useHistoryTokensRepo"
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/repository/useLoginRepo"
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/repository/usePersonalDataRepo"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/repositories/useHistoryTokensRepo"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/repositories/useLoginRepo"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/repositories/usePersonalDataRepo"
 )
 
 type IUserService interface {

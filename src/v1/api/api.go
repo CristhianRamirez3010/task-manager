@@ -3,8 +3,8 @@ package api
 import (
 	"fmt"
 
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controller/projectController"
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controller/userController"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controllers/projectController"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/controllers/userController"
 	"github.com/gin-gonic/gin"
 )
 

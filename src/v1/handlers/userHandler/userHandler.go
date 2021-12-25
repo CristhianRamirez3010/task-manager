@@ -6,7 +6,7 @@ import (
 	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/dto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/useLoginModel"
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/service/userService"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/services/userService"
 )
 
 type IUserHandler interface {

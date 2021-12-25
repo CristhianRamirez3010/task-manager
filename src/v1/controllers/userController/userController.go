@@ -9,7 +9,7 @@ import (
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/responseDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/dto"
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/handler/userHandler"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/handlers/userHandler"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/useLoginModel"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"

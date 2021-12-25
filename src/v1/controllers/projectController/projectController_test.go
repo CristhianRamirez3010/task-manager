@@ -10,7 +10,7 @@ import (
 
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/contextDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/responseDto"
-	"github.com/CristhianRamirez3010/task-manager-go/src/v1/handler/projectHandler"
+	"github.com/CristhianRamirez3010/task-manager-go/src/v1/handlers/projectHandler"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/models/proProjectModel"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
