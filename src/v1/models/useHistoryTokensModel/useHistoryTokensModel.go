@@ -24,7 +24,7 @@ const (
 )
 
 type UseHistoryToekensModel struct {
-	Id           int       `db:"id"`
+	Id           int64     `db:"id"`
 	Token        string    `db:"token"`
 	Finish       time.Time `db:"finish"`
 	LoginId      int64     `db:"login_id"`

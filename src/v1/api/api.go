@@ -23,8 +23,6 @@ func (a *Api) userApi(gin *gin.Engine) {
 	controller := userController.BuildIUserController()
 	const userEndpoint = "/v1/user"
 
-	gin.GET(fmt.Sprintf("%s/documents", userEndpoint), controller.GetDocuments)
-
 	gin.POST(fmt.Sprintf("%s/login", userEndpoint), controller.ValidateLogin)
 	gin.POST(fmt.Sprintf("%s/create", userEndpoint), controller.CreateNewUser)
 }

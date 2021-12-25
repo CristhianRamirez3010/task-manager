@@ -19,6 +19,8 @@ const (
 	maxOpenDbConnDefault = 10
 	masIdleDbConnDefault = 5
 	maxDbLifetimeDefault = 5 * time.Minute
+
+	ACCESS_ID = "accessId"
 )
 
 var (
