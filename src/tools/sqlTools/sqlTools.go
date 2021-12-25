@@ -38,8 +38,8 @@ func (s *SqlTool) BuildQuery() string {
 	query := ""
 	if s.selectStr != "" {
 		query = fmt.Sprintf("%s %s", query, s.selectStr)
-		for join := range s.joins {
-			fmt.Sprintf("%s %s", query, join)
+		for _, join := range s.joins {
+			query = fmt.Sprintf("%s %s", query, join)
 		}
 		query = fmt.Sprintf("%s %s;", query, s.where)
 	} else if s.insert != "" {
@@ -79,8 +79,8 @@ func (s *SqlTool) buildFields(tableRefence string) string {
 	for _, field := range s.fields {
 		fields = fmt.Sprintf("%s %s%s,", fields, tableRefence, field)
 	}
-	varFields := fields[:len(fields)-1]
-	return varFields
+	return fields[:len(fields)-1]
+
 }
 
 func (s *SqlTool) cleanAll() {

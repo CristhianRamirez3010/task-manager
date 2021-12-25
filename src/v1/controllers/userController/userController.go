@@ -6,7 +6,6 @@ import (
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/constants"
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/contextDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/config/exceptions"
-	"github.com/CristhianRamirez3010/task-manager-go/src/config/responseDto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/utils"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/dto"
 	"github.com/CristhianRamirez3010/task-manager-go/src/v1/handlers/userHandler"
@@ -27,8 +26,10 @@ func BuildIUserController() IUserController {
 type userControllerImpl struct{}
 
 var (
-	buildIUserHandler = userHandler.BuildIUserHandler
-	responseManager   = utils.ResponseManager
+	buildIUserHandler    = userHandler.BuildIUserHandler
+	responseManager      = utils.ResponseManager
+	logger               = utils.Logger
+	responseErrorManager = utils.ResponseErrorManager
 )
 
 func (u *userControllerImpl) ValidateLogin(c *gin.Context) {
@@ -36,18 +37,19 @@ func (u *userControllerImpl) ValidateLogin(c *gin.Context) {
 	contextDto.ClientIP = c.ClientIP()
 	contextDto.AccessToken = c.GetHeader(constants.ACCESS_ID)
 	userHandler := buildIUserHandler(contextDto)
-	var userLogin useLoginModel.UseLoginModel
+	userLogin := new(useLoginModel.UseLoginModel)
 
-	if err := binding.JSON.Bind(c.Request, &userLogin); err != nil {
+	if err := binding.JSON.Bind(c.Request, userLogin); err != nil {
 		c.JSON(http.StatusInternalServerError,
-			&responseDto.ResponseDto{
-				Error: *utils.Logger(exceptions.ERR_CONVERT_STRUCT,
+			responseErrorManager(
+				logger(
+					exceptions.ERR_CONVERT_STRUCT,
 					exceptions.ERR_DEFAULT_CONTROLLER,
 					http.StatusInternalServerError,
-					err.Error()),
-			})
+					err.Error(),
+				)))
 	} else {
-		c.JSON(responseManager(userHandler.ValidateLogin(&userLogin)))
+		c.JSON(responseManager(userHandler.ValidateLogin(userLogin)))
 	}
 }
 
@@ -56,17 +58,16 @@ func (u *userControllerImpl) CreateNewUser(c *gin.Context) {
 	contextDto.ClientIP = c.ClientIP()
 	contextDto.AccessToken = c.GetHeader(constants.ACCESS_ID)
 	userHandler := buildIUserHandler(contextDto)
-	var userData dto.UserdataDto
+	userData := new(dto.UserdataDto)
 
-	if err := binding.JSON.Bind(c.Request, &userData); err != nil {
+	if err := binding.JSON.Bind(c.Request, userData); err != nil {
 		c.JSON(http.StatusInternalServerError,
-			&responseDto.ResponseDto{
-				Error: *utils.Logger(exceptions.ERR_CONVERT_STRUCT,
-					exceptions.ERR_DEFAULT_CONTROLLER,
-					http.StatusInternalServerError,
-					err.Error()),
-			})
+			responseErrorManager(logger(exceptions.ERR_CONVERT_STRUCT,
+				exceptions.ERR_DEFAULT_CONTROLLER,
+				http.StatusInternalServerError,
+				err.Error())))
+	} else {
+		c.JSON(responseManager(userHandler.CreateNewUser(userData)))
 	}
 
-	c.JSON(responseManager(userHandler.CreateNewUser(&userData)))
 }
